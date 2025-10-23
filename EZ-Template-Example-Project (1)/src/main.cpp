@@ -22,6 +22,7 @@ ez::Drive chassis(
 // - `4.0` is the distance from the center of the wheel to the center of the robot
 // ez::tracking_wheel horiz_tracker(8, 2.75, 4.0);  // This tracking wheel is perpendicular to the drive wheels
 // ez::tracking_wheel vert_tracker(9, 2.75, 4.0);   // This tracking wheel is parallel to the drive wheels
+bool colorsorting = false;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -29,21 +30,23 @@ ez::Drive chassis(
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
+
 void initialize() {
   // Print our branding over your terminal :D
   ez::ez_template_print();
-
+  color.set_led_pwm(100);
   pros::delay(500);  // Stop the user from doing anything while legacy ports configure
 
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
   //  - ignore this if you aren't using a horizontal tracker
-  // chassis.odom_tracker_back_set(&horiz_tracker);
+  chassis.odom_tracker_back_set(&horiz_tracker);
   // Look at your vertical tracking wheel and decide if it's to the left or right of the center of the robot
   //  - change `left` to `right` if the tracking wheel is to the right of the centerline
   //  - ignore this if you aren't using a vertical tracker
-  // chassis.odom_tracker_left_set(&vert_tracker);
-
+  chassis.odom_tracker_left_set(&vert_tracker);
+  big_piston.set(true);
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true);   // Enables modifying the controller curve with buttons on the joysticks
   chassis.opcontrol_drive_activebrake_set(0.0);   // Sets the active brake kP. We recommend ~2.  0 will disable.
@@ -58,9 +61,9 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      {"Drive\n\nDrive forward and come back", drive_example},
-      {"Turn\n\nTurn 3 times.", turn_example},
-      {"Drive and Turn\n\nDrive forward, turn, come back", drive_and_turn},
+      {"LEFT AUTON \n\nRUN IF ON LEFT SIDE NEAR MID GOAL", left_auton},
+      {"RIGHT AUTON \n\nRUN IF ON RIGHT SIDE NEAR LOW GOAL", right_auton},
+      {"AUTON SKILL", auton_skills},
       {"Drive and Turn\n\nSlow down during drive", wait_until_change_speed},
       {"Swing Turn\n\nSwing in an 'S' curve", swing_example},
       {"Motion Chaining\n\nDrive forward, turn, and come back, but blend everything together :D", motion_chaining},
@@ -75,10 +78,15 @@ void initialize() {
   });
 
   // Initialize chassis and auton selector
+
+
   chassis.initialize();
   ez::as::initialize();
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 }
+
+bool tp_checker = true;
+bool bp_checker = true;
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -154,6 +162,7 @@ void screen_print_tracker(ez::tracking_wheel *tracker, std::string name, int lin
  * Adding new pages here will let you view them during user control or autonomous
  * and will help you debug problems you're having
  */
+
 void ez_screen_task() {
   while (true) {
     // Only run this when not connected to a competition switch
@@ -186,6 +195,7 @@ void ez_screen_task() {
     pros::delay(ez::util::DELAY_TIME);
   }
 }
+
 pros::Task ezScreenTask(ez_screen_task);
 
 /**
@@ -239,14 +249,83 @@ void ez_template_extras() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+void csf() {
+  while (master.get_digital(DIGITAL_R1)) { 
+    if (color.get_hue() > 0 && color.get_hue() < 30) {
+      trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+      pros::delay(105);
+		}
+		/*if (color.get_hue() > 0 && color.get_hue() < 15) {
+			trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+
+		}*/
+    if (color.get_hue() > 30 && color.get_hue() < 360) {
+      trap_piston.set(false);
+      intake1.move(120);
+      intake2.move(120);
+    }
+      pros::delay(105);
+    }
+}
+
+void csf_auton() {
+  while (master.get_digital(DIGITAL_R1)) { 
+    if (color.get_hue() > 100 && color.get_hue() < 230) {
+      trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+      pros::delay(100);
+		}
+		/*if (color.get_hue() > 0 && color.get_hue() < 15) {
+			trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+
+		}*/
+    if (color.get_hue() > 15 && color.get_hue() < 100) {
+      intake1.move(120);
+      intake2.move(120);
+      trap_piston.set(true);
+    }
+      pros::delay(10);
+    }
+}
+
+void csf_auton(uint32_t intake_duration) {
+	uint32_t start_clk = pros::millis();
+	while (pros::millis() - start_clk < intake_duration) {
+    if (color.get_hue() > 100 && color.get_hue() < 230) {
+      trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+		}
+		/*if (color.get_hue() > 0 && color.get_hue() < 15) {
+			trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+
+		}*/
+    if (color.get_hue() > 15 && color.get_hue() < 100) {
+      trap_piston.set(false);
+      intake1.move(120);
+      intake2.move(120);
+    }
+    pros::delay(165);
+  }
+}
+
+
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
-
+  color.set_led_pwm(100);
   while (true) {
     // Gives you some extras to make EZ-Template ezier
     ez_template_extras();
-
     chassis.opcontrol_tank();  // Tank control
     // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
@@ -255,6 +334,8 @@ void opcontrol() {
 
     // . . .
     // Put more user control code here!
+    /// figure out what is making the errno happen - also make sure that the task is in the right place
+
     if (master.get_digital(DIGITAL_R1)) {
       intake1.move(120);
       intake2.move(120);
@@ -265,6 +346,10 @@ void opcontrol() {
       intake1.move(0);
       intake2.move(0);
     }
+    trap_piston.button_toggle(master.get_digital(DIGITAL_UP));
+    big_piston.button_toggle(master.get_digital(DIGITAL_LEFT));
+    freak_mech.button_toggle(master.get_digital(DIGITAL_A));
+
 
     // . . .
 

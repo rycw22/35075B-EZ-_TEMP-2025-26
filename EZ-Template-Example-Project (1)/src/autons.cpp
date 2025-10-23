@@ -10,6 +10,29 @@ const int DRIVE_SPEED = 110;
 const int TURN_SPEED = 90;
 const int SWING_SPEED = 110;
 
+/*void csf_auton(uint32_t intake_duration) {
+	uint32_t start_clk = pros::millis();
+	while (pros::millis() - start_clk < intake_duration) {
+    if (color.get_hue() > 100 && color.get_hue() < 230) {
+      trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+      pros::delay(100);
+		}
+		/*if (color.get_hue() > 0 && color.get_hue() < 15) {
+			trap_piston.set(true);
+      intake1.move(120);
+      intake2.move(120);
+
+		}
+    if (color.get_hue() > 0 && color.get_hue() < 100) {
+      trap_piston.set(false);
+      intake1.move(120);
+      intake2.move(120);
+    }
+  }
+}*/
+
 ///
 // Constants
 ///
@@ -375,4 +398,131 @@ void measure_offsets() {
 
 // . . .
 // Make your own autonomous functions here!
+void left_auton() {
+  big_piston.set(false);
+  freak_mech.set(true);
+  chassis.pid_drive_set(31.5, 80, false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(-90, 75, false);
+  chassis.pid_wait();
+  
+  intake1.move(120);
+  intake2.move(120);
+  chassis.pid_drive_set(10.25, 95, false);
+  chassis.pid_wait();
+  trap_piston.set(false);
+  pros::delay(1250);
+  intake1.move(0);
+  intake2.move(0);
+  trap_piston.set(true);
+  big_piston.set(true);
+  chassis.pid_drive_set(-5, 100, false);
+  chassis.pid_wait();
+  freak_mech.set(false);
+  chassis.pid_turn_set(85, 100, false);
+  chassis.pid_wait();
+  chassis.pid_drive_set(17, 100, false);
+  trap_piston.set(false);
+  intake1.move(100);
+  intake2.move(100);
+  pros::delay(2000);
+  chassis.pid_drive_set(-13, 100, false);
+  big_piston.set(false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(135, 100, false);
+  chassis.pid_wait();
+  chassis.pid_drive_set(44, 95, false);
+
+}
+
+void right_auton() {
+  big_piston.set(false);
+  freak_mech.set(true);
+  chassis.pid_drive_set(31.5, 80, false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(90, 75, false);
+  chassis.pid_wait();
+  
+  intake1.move(120);
+  intake2.move(120);
+  chassis.pid_drive_set(10.75, 95, false);
+  chassis.pid_wait();
+  trap_piston.set(false);
+  pros::delay(1950);
+  trap_piston.set(true);
+  pros::delay(1000);
+  intake1.move(0);
+  intake2.move(0);
+  big_piston.set(true);
+  chassis.pid_drive_set(-5, 100, false);
+  chassis.pid_wait();
+  freak_mech.set(false);
+  chassis.pid_turn_set(-90, 100, false);
+  chassis.pid_wait();
+  trap_piston.set(false);
+  chassis.pid_drive_set(17, 100, false);
+  intake1.move(100);
+  intake2.move(100);
+  pros::delay(2000);
+  chassis.pid_drive_set(-13, 100, false);
+  big_piston.set(false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(45, 100, false);
+  chassis.pid_wait();
+  intake1.move(-100);
+  intake2.move(-100);
+  chassis.pid_drive_set(44, 95, false);
+  chassis.pid_wait();
+}
+
+void auton_skills() {
+  intake1.move(-100);
+  intake2.move(-100);
+  big_piston.set(false);
+  ///freak_mech.set(true);
+  chassis.pid_drive_set(29, 100, false);
+  chassis.pid_wait();
+  ///chassis.pid_drive_set(-10, 100, false);
+  /*big_piston.set(false);
+  freak_mech.set(true);
+  chassis.pid_drive_set(31.5, 80, false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(-90, 75, false);
+  chassis.pid_wait();
+  
+  intake1.move(120);
+  intake2.move(120);
+  chassis.pid_drive_set(10.25, 95, false);
+  chassis.pid_wait();
+  pros::delay(2550);
+  intake1.move(0);
+  intake2.move(0);
+  big_piston.set(true);
+  chassis.pid_drive_set(-5, 100, false);
+  chassis.pid_wait();
+  freak_mech.set(false);
+  chassis.pid_turn_set(90, 100, false);
+  chassis.pid_wait();
+  chassis.pid_drive_set(17, 100, false);
+  intake1.move(100);
+  intake2.move(100);
+  pros::delay(2000);
+  chassis.pid_drive_set(-13, 100, false);
+  big_piston.set(false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(135, 100, false);
+  chassis.pid_wait();
+  chassis.pid_drive_set(44, 95, false);
+  chassis.pid_wait();
+  pros::delay(1500);
+  chassis.pid_drive_set(-55, 95, false);
+  chassis.pid_wait();
+  chassis.pid_turn_set(180, 100, false);
+  chassis.pid_wait();
+  chassis.pid_drive_set(48, 100, false);
+  chassis.pid_wait();
+  chassis.pid_drive_set(-5, 100, false);
+  chassis.pid_wait();*/
+
+}
 // . . .

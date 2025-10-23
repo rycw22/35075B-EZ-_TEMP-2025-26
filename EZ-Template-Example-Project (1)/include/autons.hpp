@@ -16,3 +16,8 @@ void odom_pure_pursuit_wait_until_example();
 void odom_boomerang_example();
 void odom_boomerang_injected_pure_pursuit_example();
 void measure_offsets();
+
+/// gewd autons incoming
+void left_auton();
+void right_auton();
+void auton_skills();
